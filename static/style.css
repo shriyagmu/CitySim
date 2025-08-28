@@ -1,0 +1,144 @@
+/* City Grid Styles */
+.city-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+    background: var(--bs-secondary);
+    padding: 10px;
+    border-radius: 8px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.grid-cell {
+    aspect-ratio: 1;
+    background: var(--bs-dark);
+    border: 1px solid var(--bs-secondary);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    padding: 5px;
+    min-height: 80px;
+}
+
+.grid-cell:hover {
+    background: var(--bs-primary);
+    transform: scale(1.05);
+    z-index: 1;
+}
+
+.grid-cell.selected {
+    background: var(--bs-warning);
+    color: var(--bs-dark);
+    font-weight: bold;
+}
+
+.cell-content {
+    font-family: 'Courier New', monospace;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--bs-light);
+}
+
+.cell-coords {
+    font-size: 0.7rem;
+    color: var(--bs-secondary);
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+}
+
+.grid-cell.selected .cell-content {
+    color: var(--bs-dark);
+}
+
+.grid-cell.selected .cell-coords {
+    color: var(--bs-dark);
+    opacity: 0.7;
+}
+
+/* Zone and building specific colors */
+.grid-cell[data-type="R"] {
+    background: var(--bs-success);
+    color: var(--bs-white);
+}
+
+.grid-cell[data-type="C"] {
+    background: var(--bs-info);
+    color: var(--bs-white);
+}
+
+.grid-cell[data-type="I"] {
+    background: var(--bs-danger);
+    color: var(--bs-white);
+}
+
+.grid-cell[data-type="P"] {
+    background: var(--bs-success);
+    color: var(--bs-white);
+}
+
+.grid-cell[data-type="School"],
+.grid-cell[data-type="Hospital"],
+.grid-cell[data-type="Power"],
+.grid-cell[data-type="Road"] {
+    background: var(--bs-warning);
+    color: var(--bs-dark);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .city-grid {
+        max-width: 100%;
+        gap: 1px;
+        padding: 5px;
+    }
+    
+    .grid-cell {
+        min-height: 60px;
+    }
+    
+    .cell-content {
+        font-size: 1.2rem;
+    }
+    
+    .cell-coords {
+        font-size: 0.6rem;
+    }
+}
+
+/* Action button styling */
+.zone-btn, .build-btn {
+    font-size: 0.8rem;
+}
+
+/* Progress bar customization */
+.progress {
+    height: 8px;
+}
+
+/* Card spacing improvements */
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Ensure consistent button sizing */
+.btn-group > .btn {
+    flex: 1;
+}
+
+/* Animation for grid updates */
+.grid-cell {
+    animation: cellUpdate 0.3s ease-in-out;
+}
+
+@keyframes cellUpdate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
