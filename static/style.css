@@ -90,6 +90,12 @@
     box-shadow: 
         0 4px 8px rgba(40, 167, 69, 0.3),
         inset 0 1px 2px rgba(255, 255, 255, 0.2);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
 }
 
 .grid-cell[data-type="C"] {
@@ -192,6 +198,19 @@
     font-size: 0.8rem;
 }
 
+.zone-btn.disabled, .build-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #fff !important;
+}
+
+.zone-btn.disabled:hover, .build-btn.disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
 /* Progress bar customization */
 .progress {
     height: 8px;
@@ -275,19 +294,50 @@
 .grid-cell[data-type="R"]:hover {
     background: linear-gradient(145deg, #34ce57, #2dd4bf);
     transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.5);
 }
 
 .grid-cell[data-type="C"]:hover {
     background: linear-gradient(145deg, #1cc7de, #2dd4bf);
     transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(23, 162, 184, 0.5);
 }
 
 .grid-cell[data-type="I"]:hover {
     background: linear-gradient(145deg, #e55a6c, #f06292);
     transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(220, 53, 69, 0.5);
 }
 
 .grid-cell[data-type="P"]:hover {
     background: linear-gradient(145deg, #20a463, #34d399);
     transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(25, 135, 84, 0.5);
+}
+
+/* Special effects for advanced buildings */
+.grid-cell[data-type="Airport"]:hover {
+    background: linear-gradient(145deg, #6f42c1, #8e44ad);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(111, 66, 193, 0.5);
+    animation: airportGlow 1.5s infinite alternate;
+}
+
+@keyframes airportGlow {
+    0% { box-shadow: 0 8px 25px rgba(111, 66, 193, 0.5); }
+    100% { box-shadow: 0 8px 25px rgba(111, 66, 193, 0.8), 0 0 20px rgba(111, 66, 193, 0.6); }
+}
+
+.grid-cell[data-type="Stadium"]:hover {
+    background: linear-gradient(145deg, #fd7e14, #e67e22);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(253, 126, 20, 0.5);
+    animation: stadiumCheer 2s infinite;
+}
+
+@keyframes stadiumCheer {
+    0%, 100% { transform: translateY(-3px) scale(1.05); }
+    25% { transform: translateY(-5px) scale(1.07); }
+    50% { transform: translateY(-3px) scale(1.05); }
+    75% { transform: translateY(-1px) scale(1.03); }
 }

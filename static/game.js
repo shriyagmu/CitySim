@@ -27,6 +27,25 @@ class CityGame {
             btn.addEventListener('click', (e) => this.buildStructure(e.target.dataset.building));
         });
 
+        // 2x2 Zone buttons
+        document.querySelectorAll('.zone-2x2-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => this.zone2x2Cell(e.target.dataset.zone));
+        });
+
+        // Infrastructure buttons
+        document.querySelectorAll('.road-btn').forEach(btn => {
+            btn.addEventListener('click', () => this.buildRoad());
+        });
+
+        document.querySelectorAll('.power-line-btn').forEach(btn => {
+            btn.addEventListener('click', () => this.buildPowerLine());
+        });
+
+        // Disaster buttons
+        document.querySelectorAll('.disaster-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => this.triggerDisaster(e.target.dataset.disaster));
+        });
+
         // Clear button
         document.getElementById('clearCellBtn').addEventListener('click', () => this.clearCell());
 
@@ -67,19 +86,136 @@ class CityGame {
                 <p class="text-muted mb-0">Current: <strong>${cellName}</strong></p>
             </div>
         `;
+        
+        // Update button states based on affordability
+        this.updateButtonStates();
+    }
+    
+    updateButtonStates() {
+        // Get current money from the page
+        const moneyElement = document.querySelector('.h4.text-info');
+        const currentMoney = moneyElement ? parseInt(moneyElement.textContent.replace('$', '').replace(',', '')) : 0;
+        
+        // Update zone buttons
+        document.querySelectorAll('.zone-btn').forEach(btn => {
+            const zone = btn.dataset.zone;
+            const cost = this.getZoneCost(zone);
+            const canAfford = currentMoney >= cost;
+            
+            btn.disabled = !canAfford;
+            btn.classList.toggle('disabled', !canAfford);
+            
+            if (!canAfford) {
+                btn.title = `Cost: $${cost} (Insufficient funds)`;
+            }
+        });
+        
+        // Update 2x2 zone buttons
+        document.querySelectorAll('.zone-2x2-btn').forEach(btn => {
+            const zone = btn.dataset.zone;
+            const cost = this.getZoneCost(zone) * 4; // 2x2 costs 4x as much
+            const canAfford = currentMoney >= cost;
+            
+            btn.disabled = !canAfford;
+            btn.classList.toggle('disabled', !canAfford);
+            
+            if (!canAfford) {
+                btn.title = `Cost: $${cost} (Insufficient funds)`;
+            }
+        });
+        
+        // Update build buttons
+        document.querySelectorAll('.build-btn').forEach(btn => {
+            const building = btn.dataset.building;
+            const cost = this.getBuildingCost(building);
+            const canAfford = currentMoney >= cost;
+            
+            btn.disabled = !canAfford;
+            btn.classList.toggle('disabled', !canAfford);
+            
+            if (!canAfford) {
+                btn.title = `Cost: $${cost} (Insufficient funds)`;
+            }
+        });
+
+        // Update infrastructure buttons
+        document.querySelectorAll('.road-btn').forEach(btn => {
+            const canAfford = currentMoney >= 200;
+            btn.disabled = !canAfford;
+            btn.classList.toggle('disabled', !canAfford);
+        });
+
+        document.querySelectorAll('.power-line-btn').forEach(btn => {
+            const canAfford = currentMoney >= 100;
+            btn.disabled = !canAfford;
+            btn.classList.toggle('disabled', !canAfford);
+        });
+    }
+    
+    getZoneCost(zone) {
+        const costs = {
+            'R': 500,
+            'C': 800,
+            'I': 1000,
+            'P': 300
+        };
+        return costs[zone] || 0;
+    }
+    
+    getBuildingCost(building) {
+        const costs = {
+            'School': 2000,
+            'Hospital': 3000,
+            'Power': 2500,
+            'Road': 200,
+            'Police': 4000,
+            'Fire': 3500,
+            'Mall': 6000,
+            'Stadium': 8000,
+            'University': 10000,
+            'Airport': 15000
+        };
+        return costs[building] || 0;
     }
 
     getCellTypeName(symbol) {
         const typeMap = {
             '.': 'Empty',
-            'R': 'Residential',
-            'C': 'Commercial', 
-            'I': 'Industrial',
+            'R': 'Residential (Empty)',
+            'r': 'Residential (Operating)',
+            'Rd': 'Residential (Developing)',
+            'Ra': 'Residential (Abandoned)',
+            'C': 'Commercial (Empty)',
+            'c': 'Commercial (Operating)',
+            'Cd': 'Commercial (Developing)',
+            'Ca': 'Commercial (Abandoned)',
+            'I': 'Industrial (Empty)',
+            'i': 'Industrial (Operating)',
+            'Id': 'Industrial (Developing)',
+            'Ia': 'Industrial (Abandoned)',
             'P': 'Park',
             'S': 'School',
             'H': 'Hospital',
             'E': 'Power Plant',
-            '#': 'Road'
+            '|': 'Power Line',
+            '─': 'Road (Horizontal)',
+            '│': 'Road (Vertical)',
+            '┼': 'Road (Cross)',
+            '┴': 'Road (T-Up)',
+            '┬': 'Road (T-Down)',
+            '┤': 'Road (T-Left)',
+            '├': 'Road (T-Right)',
+            '┘': 'Road (Corner UL)',
+            '└': 'Road (Corner UR)',
+            '┐': 'Road (Corner DL)',
+            '┌': 'Road (Corner DR)',
+            '#': 'Road (Isolated)',
+            'L': 'Police Station',
+            'F': 'Fire Station',
+            'A': 'Airport',
+            'T': 'Stadium',
+            'M': 'Mall',
+            'U': 'University'
         };
         return typeMap[symbol] || 'Unknown';
     }
@@ -126,6 +262,75 @@ class CityGame {
         
         // Submit form
         document.getElementById('clearForm').submit();
+    }
+
+    zone2x2Cell(zoneType) {
+        if (!this.selectedCell) {
+            this.showMessage('Please select a cell first', 'warning');
+            return;
+        }
+
+        // Check if 2x2 block fits
+        const { row, col } = this.selectedCell;
+        if (row > 3 || col > 3) {
+            this.showMessage('2x2 block must fit within grid (select top-left corner)', 'warning');
+            return;
+        }
+
+        // Set form values
+        document.getElementById('zone2x2Row').value = row;
+        document.getElementById('zone2x2Col').value = col;
+        document.getElementById('zone2x2Type').value = zoneType;
+        
+        // Submit form
+        document.getElementById('zone2x2Form').submit();
+    }
+
+    buildRoad() {
+        if (!this.selectedCell) {
+            this.showMessage('Please select a cell first', 'warning');
+            return;
+        }
+
+        // Set form values
+        document.getElementById('roadRow').value = this.selectedCell.row;
+        document.getElementById('roadCol').value = this.selectedCell.col;
+        
+        // Submit form
+        document.getElementById('roadForm').submit();
+    }
+
+    buildPowerLine() {
+        if (!this.selectedCell) {
+            this.showMessage('Please select a cell first', 'warning');
+            return;
+        }
+
+        // Set form values
+        document.getElementById('powerLineRow').value = this.selectedCell.row;
+        document.getElementById('powerLineCol').value = this.selectedCell.col;
+        
+        // Submit form
+        document.getElementById('powerLineForm').submit();
+    }
+
+    triggerDisaster(disasterType) {
+        if (!this.selectedCell) {
+            this.showMessage('Please select a cell first', 'warning');
+            return;
+        }
+
+        if (!confirm(`Trigger ${disasterType} disaster at (${this.selectedCell.row}, ${this.selectedCell.col})?`)) {
+            return;
+        }
+
+        // Set form values
+        document.getElementById('disasterRow').value = this.selectedCell.row;
+        document.getElementById('disasterCol').value = this.selectedCell.col;
+        document.getElementById('disasterType').value = disasterType;
+        
+        // Submit form
+        document.getElementById('disasterForm').submit();
     }
 
     updateGridColors() {
@@ -266,7 +471,72 @@ class CityGame {
 // Initialize game when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new CityGame();
+    loadSaveList(); // Load available saves
 });
+
+// Save/Load functions
+function saveCity() {
+    const saveName = document.getElementById('saveName').value.trim();
+    if (!saveName) {
+        alert('Please enter a city name');
+        return;
+    }
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/save_city';
+    
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'save_name';
+    input.value = saveName;
+    
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function loadCity() {
+    const saveName = document.getElementById('loadSelect').value;
+    if (!saveName) {
+        alert('Please select a save file');
+        return;
+    }
+    
+    if (confirm(`Load city "${saveName}"? This will replace your current city.`)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/load_city';
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'save_name';
+        input.value = saveName;
+        
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function loadSaveList() {
+    fetch('/list_saves')
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById('loadSelect');
+            select.innerHTML = '<option value="">Select save file...</option>';
+            
+            data.saves.forEach(save => {
+                const option = document.createElement('option');
+                option.value = save.name;
+                option.textContent = `${save.name} (Year ${save.year}, Pop: ${save.population}, $${Math.round(save.money)})`;
+                select.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading save list:', error);
+        });
+}
 
 // Add some helpful tooltips and enhanced UX
 document.addEventListener('DOMContentLoaded', () => {
