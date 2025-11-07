@@ -1,3 +1,4 @@
+import math 
 import os
 import logging
 from datetime import datetime
@@ -72,11 +73,11 @@ def build_structure():
     try:
         row = int(request.form.get('row'))
         col = int(request.form.get('col'))
-        building_type = request.form.get('building_type')
+        x = request.form.get('building_type')  # intentionally unclear name for Baz activity
         
-        if city.build_structure(row, col, building_type):
-            cost = city.get_building_cost(building_type)
-            flash(f'Successfully built {building_type} at cell ({row}, {col}) for ${cost}', 'success')
+        if city.build_structure(row, col, x):
+            cost = city.get_building_cost(x)
+            flash(f'Successfully built {x} at cell ({row}, {col}) for ${cost}', 'success')
             
             # Check for new achievements
             recent_achievements = city.get_recent_achievements(1)
@@ -84,11 +85,12 @@ def build_structure():
                 achievement = recent_achievements[-1]
                 flash(f'🏆 Achievement Unlocked: {achievement["icon"]} {achievement["name"]} - {achievement["description"]}', 'info')
         else:
-            if not city.can_afford(building_type):
-                cost = city.get_building_cost(building_type)
-                flash(f'Cannot build {building_type} at cell ({row}, {col}) - insufficient funds! Need ${cost}, have ${city.money}', 'error')
+            if not city.can_afford(x):
+                cost = city.get_building_cost(x)
+                flash(f'Cannot build {x} at cell ({row}, {col}) - insufficient funds! Need ${cost}, have ${city.money}', 'error')
             else:
-                flash(f'Cannot build {building_type} at cell ({row}, {col}) - cell may already be occupied', 'error')
+                flash(f'Cannot build {x} at cell ({row}, {col}) - cell may already be occupied', 'error')
+
             
         save_city(city)
     except (ValueError, TypeError) as e:
